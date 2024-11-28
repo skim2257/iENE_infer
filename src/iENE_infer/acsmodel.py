@@ -15,8 +15,6 @@ class ACSModel(nn.Module):
                  pretrained: bool = True,
                  act: str = 'relu',
                  dropout: float = 0.3,
-                 freeze: bool = False,
-                 softacs: bool = False,
                  num_tasks: int = 1):
         """
         Parameters
@@ -38,7 +36,7 @@ class ACSModel(nn.Module):
                        'selu': nn.SELU,
                        'elu': nn.ELU}
         
-        self.model_3d = ACSConverter(resnet18())#.cuda()
+        self.model_3d = ACSConverter(resnet18()).cuda()
         self.activation = activations[act]
         
         self.model_3d.fc = nn.Sequential(
@@ -48,7 +46,7 @@ class ACSModel(nn.Module):
             self.activation(inplace=True),
             nn.Dropout(dropout),
             nn.Linear(1024, num_tasks),
-            nn.Sigmoid())#.cuda()
+            nn.Sigmoid()).cuda()
         
     def forward(self, x):
         """

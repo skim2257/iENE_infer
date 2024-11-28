@@ -41,7 +41,7 @@ def main():
         for tta in [None, "x+", "x-", "y+", "y-", "z+", "z-"]:
             # set test time augmentation
             hparams.testaug = tta
-            hparams.pred_save_path = base_pred_path.replace("csv", f"_{fold_num}_{tta}.csv")
+            hparams.pred_save_path = base_pred_path.replace(".csv", f"_{fold_num}_{tta}.csv")
             
             # init model
             model = rENEModel.load_from_checkpoint(hparams.ckpt_path, params=hparams, strict=False)
@@ -55,6 +55,8 @@ def main():
 
             # Train the model ⚡
             trainer.test(model)
+            break
+        break
 
     print("We've reached the end...")
 

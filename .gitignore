@@ -1,5 +1,4 @@
 *.pth
-pixi.lock
 *.bak
 *.bak*
 *.ckpt

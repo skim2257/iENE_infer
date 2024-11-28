@@ -177,7 +177,7 @@ class ExternalDataset(Dataset):
             # translate
             larynx_centre = np.add(larynx_centre, translate)
         
-        print("\n\n\n", idx, self.testaug, larynx_centre, "\n\n")
+        # print("\n\n\n", idx, self.testaug, larynx_centre, "\n\n")
         image = crop_centroid(image, larynx_centre, self.input_size)
 
         # window image intensities to [-500, 1000] HU range

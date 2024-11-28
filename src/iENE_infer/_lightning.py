@@ -44,10 +44,6 @@ class rENEModel(pl.LightningModule):
 
         # LOSS function
         self.loss = F.mse_loss
-            
-        # print(self.model, "\n\n\n")
-        # if not self.params.pretrained and not self.params.freeze:
-        #     self.init_params(self.model)
 
     def forward(self, x):
         """
