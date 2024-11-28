@@ -1,0 +1,54 @@
+[project]
+name = "iENE_infer"
+version = "0.1.0"
+
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["./src/iENE_infer"]
+
+[tool.pixi.project]
+channels = ["conda-forge"]
+platforms = ["win-64", "linux-64"]
+
+[tool.pixi.pypi-dependencies]
+iENE_infer = { path = ".", editable = true }
+med-imagetools = ">=1.2.0.2,<2"
+acsconv = "==0.1.0"
+torch = "==1.8.0"
+torchvision = "==0.9.0"
+pytorch-lightning = "==1.6.0"
+torchio = "==0.18.86"
+
+[tool.pixi.dependencies]
+python = "3.9.*"
+pandas = "==1.4.2"
+scikit-learn = ">=1.5.2,<2"
+python-dotenv = ">=1.0.1,<2"
+cudatoolkit = "10.2.*"
+
+[tool.pixi.feature.nnunet]
+channels = ["nvidia", "conda-forge", "pytorch"]
+
+[tool.pixi.feature.nnunet.dependencies]
+python = "3.10.*"
+numpy = "1.24.3.*"
+pytorch = "2.0.*"
+pytorch-cuda = "11.8.*"
+
+[tool.pixi.feature.nnunet.pypi-dependencies]
+nnunetv2 = "==2.1"
+acvl-utils = "==0.2"
+blosc2 = "==2.7.1"
+
+[tool.pixi.feature.nnunet.tasks]
+larynx  = { cmd = "nnUNetv2_predict -i $IN_PATH -o $OUT_PATH -d 001 -device cuda -f 0 -c 3d_fullres -chk checkpoint_best.pth"} 
+
+[tool.pixi.tasks]
+predict = { cmd = "python src/iENE_infer/predict.py --test_root $IN_PATH --test_mask $OUT_PATH --pred_save_path $pred_save_path --num_workers 1 --batch_size 1 --arch acs --seed 1201 --input_size 256 256 128 --pretrained --resnet resnet18 --ckpt_path $ckpt_path" }
+average = { cmd = "python src/iENE_infer/aggregate.py --prediction_dir $pred_save_path" }
+
+[tool.pixi.environments]
+nnunet = { features = ["nnunet"], no-default-feature = true }

@@ -1,0 +1,16 @@
+{
+    "description": "",
+    "labels": {
+        "background": 0,
+        "Larynx": 1
+    },
+    "licence": "hands off!",
+    "name": "Larynx",
+    "numTraining": 1673,
+    "reference": "",
+    "release": "0.0",
+    "channel_names": {
+        "0": "CT"
+    },
+    "file_ending": ".nii.gz"
+}
