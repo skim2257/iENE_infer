@@ -36,8 +36,9 @@ def main():
         version = str(slurm_id)
 
     base_pred_path = deepcopy(hparams.pred_save_path)
+    base_ckpt_path = deepcopy(hparams.ckpt_path)
     for fold_num in range(1, 5):
-        hparams.ckpt_path = os.path.join(hparams.ckpt_path, f"fold_{fold_num}.ckpt")
+        hparams.ckpt_path = os.path.join(base_ckpt_path, f"fold_{fold_num}.ckpt")
         for tta in [None, "x+", "x-", "y+", "y-", "z+", "z-"]:
             # set test time augmentation
             hparams.testaug = tta
@@ -49,14 +50,14 @@ def main():
 
             # Initialize a trainer
             trainer = Trainer.from_argparse_args(hparams, 
-                                                progress_bar_refresh_rate=2,
-                                                checkpoint_callback=None,
-                                                logger=None)
+                                                 progress_bar_refresh_rate=2,
+                                                 checkpoint_callback=None,
+                                                 logger=None)
 
             # Train the model ⚡
             trainer.test(model)
-            break
-        break
+        #     break
+        # break
 
     print("We've reached the end...")
 

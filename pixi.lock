@@ -1814,7 +1814,7 @@ packages:
   name: iene-infer
   version: 0.1.0
   path: .
-  sha256: 7655a0acbec36498f20b8ea5b177806d624e16a11f2d183d3922c53f86f4c705
+  sha256: f30363ec3600908f7a7216f6247286b3418cb2744957b19377851296235134ce
   editable: true
 - kind: pypi
   name: imagecodecs

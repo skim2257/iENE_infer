@@ -1,6 +1,11 @@
 import SimpleITK as sitk
 import numpy as np
+import pathlib
 from imgtools.ops import Resample, Resize
+
+
+def clean_path(path: str):
+    return pathlib.Path(path).as_posix()
 
 def find_bbox(mask: sitk.Image) -> np.ndarray:
     mask_uint = sitk.Cast(mask, sitk.sitkUInt8)
