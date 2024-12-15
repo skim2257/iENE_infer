@@ -33,13 +33,10 @@ python-dotenv = ">=1.0.1,<2"
 cudatoolkit = "11.1.*"
 
 [tool.pixi.activation]
-env.data_root="C:/Users/samkr/OneDrive/Desktop/tcia/manifest-1568995398587/HEAD-NECK-RADIOMICS-HN1"
-env.IN_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/processed/hn1"
-env.IN_ORG_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/processed/hn1_reorg"
-env.OUT_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/processed/hn1_nnUNet"
-env.nnUNet_raw="./src/nnunet/nnUNet_raw"
-env.nnUNet_results="./src/nnunet/nnUNet_results"
-env.nnUNet_preprocessed="./src/nnunet/nnUNet_preprocessed"
+env.data_root="/path/to/raw/dicom/dataset"
+env.IN_PATH="/path/to/processed/nifit/dataset"
+env.IN_ORG_PATH="/path/to/reorganized/nifti/dataset/for/nnunet"
+env.OUT_PATH="/path/to/nnunet/outputs/or/larynx/segmentations"
 env.pred_save_path="./outputs/HN1_predictions.csv"
 env.ckpt_path="./src/models"
 
@@ -58,15 +55,14 @@ acvl-utils = "==0.2"
 blosc2 = "==2.7.1"
 
 [tool.pixi.feature.nnunet.tasks]
-teste = { cmd = "echo HELLO $IN_PATH $OUT_PATH $pred_save_path $ckpt_path HELLO", env = {IN_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/processed/hn1_reorg", OUT_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/processed/hn1_nnUNet", nnUNet_raw="./src/nnunet/nnUNet_raw", nnUNet_results="./src/nnunet/nnUNet_results", nnUNet_preprocessed="./src/nnunet/nnUNet_preprocessed"}}
 larynx  = { cmd = "nnUNetv2_predict -i $IN_PATH -o $OUT_PATH -d 001 -device cuda -f 0 -c 3d_fullres -chk checkpoint_best.pth", env = {IN_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/processed/hn1_reorg", OUT_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/processed/hn1_nnUNet", nnUNet_raw="./src/nnunet/nnUNet_raw", nnUNet_results="./src/nnunet/nnUNet_results", nnUNet_preprocessed="./src/nnunet/nnUNet_preprocessed"}} 
 
 [tool.pixi.tasks]
-process = {cmd = "autopipeline $data_root $IN_PATH $--modalities CT"}
-prep = {cmd = "python src/iENE_infer/prepare.py $IN_PATH $IN_ORG_PATH"}
+process = { cmd = "autopipeline $data_root $IN_PATH $--modalities CT"}
+prepare = { cmd = "python src/iENE_infer/prepare.py $IN_PATH $IN_ORG_PATH"}
 test = { cmd = "echo HELLO $IN_PATH $OUT_PATH $pred_save_path $ckpt_path HELLO" }
 predict = { cmd = "python src/iENE_infer/predict.py --test_root $IN_ORG_PATH --test_mask $OUT_PATH --pred_save_path $pred_save_path --num_workers 4 --batch_size 4 --gpus 1 --arch acs --seed 1201 --input_size 256 256 128 --pretrained --resnet resnet18 --ckpt_path $ckpt_path" }
-average = { cmd = "python src/iENE_infer/aggregate.py --prediction_dir $pred_save_path" }
+average = { cmd = "python src/iENE_infer/average.py --prediction_dir $pred_save_path" }
 
 [tool.pixi.environments]
 nnunet = { features = ["nnunet"], no-default-feature = true }

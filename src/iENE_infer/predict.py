@@ -45,7 +45,7 @@ def main():
             hparams.pred_save_path = base_pred_path.replace(".csv", f"_{fold_num}_{tta}.csv")
             
             # init model
-            model = rENEModel.load_from_checkpoint(hparams.ckpt_path, params=hparams, strict=False)
+            model = rENEModel.load_from_checkpoint(hparams.ckpt_path, params=hparams)
             model.eval()
 
             # Initialize a trainer
@@ -56,8 +56,8 @@ def main():
 
             # Train the model ⚡
             trainer.test(model)
-        #     break
-        # break
+            break
+        break
 
     print("We've reached the end...")
 
