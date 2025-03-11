@@ -55,7 +55,7 @@ acvl-utils = "==0.2"
 blosc2 = "==2.7.1"
 
 [tool.pixi.feature.nnunet.tasks]
-larynx  = { cmd = "nnUNetv2_predict -i $IN_PATH -o $OUT_PATH -d 001 -device cuda -f 0 -c 3d_fullres -chk checkpoint_best.pth", env = {IN_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/processed/hn1_reorg", OUT_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/processed/hn1_nnUNet", nnUNet_raw="./src/nnunet/nnUNet_raw", nnUNet_results="./src/nnunet/nnUNet_results", nnUNet_preprocessed="./src/nnunet/nnUNet_preprocessed"}} 
+larynx  = { cmd = "nnUNetv2_predict -i $IN_ORG_PATH -o $OUT_PATH -d 001 -device cuda -f 0 -c 3d_fullres -chk checkpoint_best.pth", env = {IN_ORG_PATH="/path/to/reorganized/nifti/dataset/for/nnunet", OUT_PATH="/path/to/nnunet/outputs/or/larynx/segmentations", nnUNet_raw="./src/nnunet/nnUNet_raw", nnUNet_results="./src/nnunet/nnUNet_results", nnUNet_preprocessed="./src/nnunet/nnUNet_preprocessed"}} 
 
 [tool.pixi.tasks]
 process = { cmd = "autopipeline $data_root $IN_PATH $--modalities CT"}

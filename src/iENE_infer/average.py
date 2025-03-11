@@ -18,7 +18,7 @@ def average_floats_in_csv_files(prediction_path):
     # Read and collect floats from each matched file
     for file in files: 
         df = pd.read_csv(file)
-        suffix = file.split("HN1_predictions")[1].split(".csv")[0]
+        suffix = file.split(file_start)[1].split(".csv")[0]
         if new_df is None:
             new_df = df
         else:

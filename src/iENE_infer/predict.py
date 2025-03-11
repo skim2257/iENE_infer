@@ -56,8 +56,8 @@ def main():
 
             # Train the model ⚡
             trainer.test(model)
-            break
-        break
+        #     break
+        # break
 
     print("We've reached the end...")
 
