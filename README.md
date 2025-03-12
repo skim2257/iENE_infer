@@ -47,7 +47,7 @@ The pipeline consists of the following steps:
 3. `predict`: This step will run the iENE model on the prepared data and save 28 predictions to `pred_save_path` with unique suffixes.
 4. `average`: This step will average the predictions from the iENE model to create a single prediction file at `pred_save_path` with the `_AVERAGE` suffix.
 
-## #Model Checkpoints
+### Model Checkpoints
 You have two types of model checkpoints to download. Download them here: [https://drive.google.com/drive/folders/1U_js4aYkxT5EgMaD3sM22_50VOkjxiVw?usp=drive_link](https://drive.google.com/drive/folders/1U_js4aYkxT5EgMaD3sM22_50VOkjxiVw?usp=drive_link)
 1. nnUNet checkpoint: Save `checkopint_best.pth` into `src/nnunet/nnUNet_results/Dataset001_Larynx/nnUNetTrainer__nnUNetPlans__3d_fullres/fold_0`
 2. iENE prediction checkpoints: Save `fold_1.ckpt` through `fold_4.ckpt` into `src/models`
