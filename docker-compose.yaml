@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  iene-inference:
+    build: .
+    container_name: iene-inference-cpu
+    volumes:
+      # Mount data directories
+      - ${HOST_DATA_ROOT}:/data/input:ro
+      - ${HOST_PROCESSED_PATH}:/data/processed
+      - ${HOST_ORGANIZED_PATH}:/data/organized
+      - ${HOST_SEGMENTATION_PATH}:/data/segmentations
+      - ${HOST_OUTPUT_PATH}:/data/outputs
+      
+      # Mount model checkpoints
+      - ${HOST_IENE_MODELS}:/app/src/models:ro
+      - ${HOST_NNUNET_CHECKPOINT}:/app/src/nnunet/nnUNet_results/Dataset001_Larynx/nnUNetTrainer__nnUNetPlans__3d_fullres/fold_0/checkpoint_best.pth:ro
+    
+    environment:
+      # Pipeline paths
+      - data_root=/data/input
+      - IN_PATH=/data/processed
+      - IN_ORG_PATH=/data/organized
+      - OUT_PATH=/data/segmentations
+      - pred_save_path=/data/outputs/predictions.csv
+      - ckpt_path=/app/src/models
+      
+      # CPU optimization
+      - OMP_NUM_THREADS=4
+      - MKL_NUM_THREADS=4
+      - NUMEXPR_NUM_THREADS=4
+      
+    # Resource limits for CPU
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 16G
+        reservations:
+          cpus: '2'
+          memory: 8G
+    
+    # Override command for specific steps
+    # command: pixi run predict  # Run only prediction step
+    
+  # Optional: Service for only preprocessing DICOM files
+  iene-preprocess:
+    build: .
+    container_name: iene-preprocess
+    volumes:
+      - ${HOST_DATA_ROOT}:/data/input:ro
+      - ${HOST_PROCESSED_PATH}:/data/processed
+    environment:
+      - data_root=/data/input
+      - IN_PATH=/data/processed
+    command: pixi run process
+    profiles:
+      - preprocess
+  
+  # Optional: Service for only running prediction (skip segmentation)
+  iene-predict-only:
+    build: .
+    container_name: iene-predict-only
+    volumes:
+      - ${HOST_ORGANIZED_PATH}:/data/organized:ro
+      - ${HOST_SEGMENTATION_PATH}:/data/segmentations:ro
+      - ${HOST_OUTPUT_PATH}:/data/outputs
+      - ${HOST_IENE_MODELS}:/app/src/models:ro
+    environment:
+      - IN_ORG_PATH=/data/organized
+      - OUT_PATH=/data/segmentations
+      - pred_save_path=/data/outputs/predictions.csv
+      - ckpt_path=/app/src/models
+    command: bash -c "pixi run predict && pixi run average"
+    profiles:
+      - predict-only

@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from copy import deepcopy
+import torch
 
 from pytorch_lightning import Trainer, seed_everything
 
@@ -20,6 +21,16 @@ def main():
 
     # Freeze
     hparams.freeze = True
+
+    # Force CPU usage
+    hparams.gpus = 0
+    hparams.accelerator = None
+    torch.set_default_tensor_type('torch.FloatTensor')
+    
+    # Verify CUDA is not being used
+    if torch.cuda.is_available():
+        print("Warning: CUDA is available but we're forcing CPU usage")
+        torch.cuda.is_available = lambda: False
 
     # Input size to tuple
     hparams.input_size = tuple(hparams.input_size)
@@ -44,15 +55,24 @@ def main():
             hparams.testaug = tta
             hparams.pred_save_path = base_pred_path.replace(".csv", f"_{fold_num}_{tta}.csv")
             
-            # init model
-            model = rENEModel.load_from_checkpoint(hparams.ckpt_path, params=hparams)
+            # init model - load on CPU
+            model = rENEModel.load_from_checkpoint(
+                hparams.ckpt_path, 
+                params=hparams,
+                map_location=torch.device('cpu')
+            )
             model.eval()
+            model.to('cpu')
 
-            # Initialize a trainer
-            trainer = Trainer.from_argparse_args(hparams, 
-                                                 progress_bar_refresh_rate=2,
-                                                 checkpoint_callback=None,
-                                                 logger=None)
+            # Initialize a trainer for CPU
+            trainer = Trainer.from_argparse_args(
+                hparams, 
+                progress_bar_refresh_rate=2,
+                checkpoint_callback=None,
+                logger=None,
+                gpus=0,
+                accelerator=None
+            )
 
             # Train the model ⚡
             trainer.test(model)
