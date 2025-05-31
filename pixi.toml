@@ -30,11 +30,17 @@ cudatoolkit = "11.1.*"
 
 [activation.env]
 data_root="/path/to/raw/dicom/dataset"
-IN_PATH="/path/to/processed/nifit/dataset"
-IN_ORG_PATH="/path/to/reorganized/nifti/dataset/for/nnunet"
-OUT_PATH="/path/to/nnunet/outputs/or/larynx/segmentations"
-pred_save_path="./outputs/HN1_predictions.csv"
+IN_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/radcure-iENE-processed"
+IN_ORG_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/radcure-iENE-org"
+OUT_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/radcure-iENE-nnunet"
+pred_save_path="./outputs/RADCURE_predictions.csv"
 ckpt_path="./src/models"
+
+[feature.download.activation.env]
+SAVE_DIR="C:/Users/samkr/OneDrive/Desktop/tcia/radcure-iENE"
+TCIA_USERNAME="bhaibeka"
+TCIA_PASSWORD="Soleil2uhn!"
+IENE_CSV_PATH="C:/Users/samkr/OneDrive/Desktop/code/iENE_infer_new/iENE.csv"
 
 [feature.nnunet]
 channels = ["nvidia", "conda-forge", "pytorch"]
@@ -58,8 +64,20 @@ blosc2 = "==2.7.1"
 [feature.nnunet.tasks]
 larynx  = { cmd = "nnUNetv2_predict -i $IN_ORG_PATH -o $OUT_PATH -d 001 -device cuda -f 0 -c 3d_fullres -chk checkpoint_best.pth", env = {nnUNet_raw="./src/nnunet/nnUNet_raw", nnUNet_results="./src/nnunet/nnUNet_results", nnUNet_preprocessed="./src/nnunet/nnUNet_preprocessed"}} 
 
+[feature.download.dependencies]
+python = "3.12"
+cffi = ">=1.17.1,<2"
+cryptography = ">=45.0.2,<46"
+pandas = ">=2.2.3,<3"
+tqdm = ">=4.67.1,<5"
+joblib = ">=1.5.0,<2"
+
+[feature.download.pypi-dependencies]
+nbiatoolkit = "*"
+
 [tasks]
-process = { cmd = "autopipeline $data_root $IN_PATH $--modalities CT"}
+process_radcure = {cmd = "autopipeline $SAVE_DIR $IN_PATH --modalities CT,RTSTRUCT --roi_yaml_path ./src/scripts/lymph_nodes.yaml" }
+process = { cmd = "autopipeline $data_root $IN_PATH --modalities CT"}
 prepare = { cmd = "python src/iENE_infer/prepare.py $IN_PATH $IN_ORG_PATH"}
 test = { cmd = "echo HELLO $IN_PATH $OUT_PATH $pred_save_path $ckpt_path HELLO" }
 predict = { cmd = "python src/iENE_infer/predict.py --test_root $IN_ORG_PATH --test_mask $OUT_PATH --pred_save_path $pred_save_path --num_workers 4 --batch_size 4 --gpus 1 --arch acs --seed 1201 --input_size 256 256 128 --pretrained --resnet resnet18 --ckpt_path $ckpt_path" }
@@ -67,3 +85,5 @@ average = { cmd = "python src/iENE_infer/average.py --prediction_dir $pred_save_
 
 [environments]
 nnunet = { features = ["nnunet"], no-default-feature = true }
+nbiatk = { features = ["download"], no-default-feature = true}
+

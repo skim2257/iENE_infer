@@ -1,0 +1,28 @@
+FROM pytorch/pytorch:1.8.0-cuda11.1-cudnn8-runtime
+
+WORKDIR /workspace
+
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    wget \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://pixi.sh/install.sh | bash
+ENV PATH="/root/.pixi/bin:${PATH}"
+
+COPY . /workspace
+
+RUN if [ -f "pixi.toml" ]; then \
+        pixi install && \
+        pixi run --all; \
+    fi
+
+# Alternative: If you have specific pixi commands to run
+# RUN pixi run train
+# RUN pixi run test
+# RUN pixi run evaluate
+
+# Set default command (adjust based on your needs)
+CMD ["pixi", "run", "default"]
