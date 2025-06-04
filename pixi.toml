@@ -27,45 +27,49 @@ OUT_PATH="/data/segmentations"
 pred_save_path="/data/outputs/predictions.csv"
 ckpt_path="/app/src/models"
 
+[feature.nnunet.activation.env]
+IN_ORG_PATH="/data/organized"
+OUT_PATH="/data/segmentations"
+
 [feature.nnunet]
-channels = ["conda-forge", "pytorch"]
+channels = ["pytorch", "nvidia", "conda-forge"]
+platforms = ["win-64", "linux-64"]
 
 [feature.nnunet.dependencies]
 python = "3.10.*"
 numpy = "1.24.3.*"
 pytorch = "2.0.*"
+pytorch-cuda = "11.8.*"
 
 [feature.nnunet.pypi-dependencies]
-nnunetv2 = "==2.1"
+nnunetv2 = "*"
 acvl-utils = "==0.2"
 blosc2 = "==2.7.1"
 
 [feature.nnunet.tasks]
-larynx = { cmd = "nnUNetv2_predict -i /data/organized -o /data/segmentations -d 001 -device cpu -f 0 -c 3d_fullres -chk checkpoint_best.pth", env = {nnUNet_raw="/app/src/nnunet/nnUNet_raw", nnUNet_results="/app/src/nnunet/nnUNet_results", nnUNet_preprocessed="/app/src/nnunet/nnUNet_preprocessed"}} 
+larynx = { cmd = "nnUNetv2_predict -i $IN_ORG_PATH -o $OUT_PATH -d 001 -device cuda -f 0 -c 3d_fullres -chk checkpoint_best.pth", env = {nnUNet_raw="./src/nnunet/nnUNet_raw", nnUNet_results="./src/nnunet/nnUNet_results", nnUNet_preprocessed="./src/nnunet/nnUNet_preprocessed"}} 
 
 [tasks]
 # Step 0: DICOM to NIfTI preprocessing (optional)
-process = { cmd = "autopipeline /data/input /data/processed --modalities CT"}
+process = { cmd = "autopipeline $data_root $IN_PATH --modalities CT"}
 
 # Step 1: Prepare data for nnUNet
-prepare = { cmd = "python src/iENE_infer/prepare.py /data/processed /data/organized"}
+prepare = { cmd = "python src/iENE_infer/prepare.py $IN_PATH $IN_ORG_PATH"}
 
 # Step 2: Run larynx segmentation
 # Use: pixi run -e nnunet larynx
 
 # Step 3: Run iENE prediction
-predict = { cmd = "python src/iENE_infer/predict.py --test_root /data/organized --test_mask /data/segmentations --pred_save_path /data/outputs/predictions.csv --num_workers 2 --batch_size 1 --arch acs --seed 1201 --input_size 256 256 128 --pretrained --resnet resnet18 --ckpt_path /app/src/models" }
+predict = { cmd = "python src/iENE_infer/predict.py --test_root $IN_ORG_PATH --test_mask $OUT_PATH --pred_save_path $PRED_SAVE_PATH --num_workers 2 --batch_size 1 --arch acs --seed 1201 --input_size 256 256 128 --pretrained --resnet resnet18 --ckpt_path $MODEL_DIR_PATH" }
 
 # Step 4: Average predictions
-average = { cmd = "python src/iENE_infer/average.py --prediction_dir /data/outputs/predictions.csv" }
+average = { cmd = "python src/iENE_infer/average.py --prediction_dir $PRED_SAVE_PATH" }
 
 # Combined tasks for convenience
+inference = { depends-on = ["predict", "average"] }
 pipeline-no-dicom = { cmd = "pixi run prepare && pixi run -e nnunet larynx && pixi run predict && pixi run average" }
 pipeline-full = { cmd = "pixi run process && pixi run prepare && pixi run -e nnunet larynx && pixi run predict && pixi run average" }
 predict-only = { cmd = "pixi run predict && pixi run average" }
-
-# Health check task
-health-check = { cmd = "python -c 'import torch; print(f\"PyTorch CPU: {torch.get_num_threads()} threads\"); print(f\"CUDA available: {torch.cuda.is_available()}\")'" }
 
 [environments]
 nnunet = { features = ["nnunet"], no-default-feature = true }
