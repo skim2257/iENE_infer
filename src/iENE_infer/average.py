@@ -10,7 +10,7 @@ def average_floats_in_csv_files(prediction_path):
     print(directory, file_start, file_end)
 
     # Filter files that match the regex
-    files = [os.path.join(directory, file) for file in os.listdir(directory) if file.startswith(file_start) and file.endswith(file_end)]
+    files = [os.path.join(directory, file) for file in os.listdir(directory) if file.startswith(file_start) and file.endswith(file_end) and not "AVERAGE" in file]
     print(os.listdir(directory))
     
     new_df = None
@@ -26,8 +26,17 @@ def average_floats_in_csv_files(prediction_path):
 
     new_df.set_index("ID")
     new_df['ENE_average'] = new_df.mean(axis=1)
+    new_df['ENE_sd'] = new_df.std(axis=1)
     new_df.reset_index(inplace=True)
-    new_df[['ID', 'ENE_average']].to_csv(prediction_path.replace(".csv", "_AVERAGE.csv"), index=False)
+
+    # save aggregated results
+    new_prediction_path = prediction_path.replace(".csv", "_AVERAGE.csv")
+    new_df[['ID', 'ENE_average', 'ENE_sd']].to_csv(new_prediction_path, index=False)
+    
+    print("Cleaning up intermediate files...")
+    # Remove the original TTA predictions
+    for file in files:
+        os.remove(file)
 
 if __name__ == "__main__":
     parser = ArgumentParser()
