@@ -131,13 +131,13 @@ class ExternalDataset(Dataset):
         """
         
         path = self.image_list[idx]
-        subject_id = path.split("/")[-1].split("_0000")[0]
+        subject_id = path.split("/")[-1].split("_0000.nrrd")[0]
 
         # images/masks are in different folders and folder structures
-        image = sitk.ReadImage(clean_path(os.path.join(self.root_directory, f"{subject_id}_0000.nii.gz")))
+        image = sitk.ReadImage(clean_path(os.path.join(self.root_directory, f"{subject_id}_0000.nrrd")))
         image = self.resample(image)
 
-        mask = sitk.ReadImage(clean_path(os.path.join(self.mask_directory, f"{subject_id}.nii.gz")))
+        mask = sitk.ReadImage(clean_path(os.path.join(self.mask_directory, f"{subject_id}.nrrd")))
         mask = self.resample(mask)
 
         try: # crop around larynx
