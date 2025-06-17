@@ -1,4 +1,5 @@
 import os
+import shutil
 import pathlib
 import argparse
 
@@ -14,7 +15,7 @@ def create_symlinks(input_parent, output_parent):
             symlink_name = f"{pat_id}_0000.nrrd"
             symlink_path = os.path.join(output_parent, symlink_name)
             # Create the symbolic link
-            pathlib.Path(symlink_path).symlink_to(ct_file_path)
+            shutil.copy(ct_file_path, symlink_path)
             print(f"Created symlink: {symlink_path} -> {ct_file_path}")
 
 def main():
