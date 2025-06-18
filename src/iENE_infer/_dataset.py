@@ -101,7 +101,7 @@ class ExternalDataset(Dataset):
             Number of parallel processes to use for data preprocessing.
         """
         self.root_directory = pathlib.Path(root_directory).as_posix() 
-        self.image_list = sorted(glob.glob(os.path.join(self.root_directory, "*.nii.gz")))
+        self.image_list = sorted(glob.glob(os.path.join(self.root_directory, "*.nrrd")))
         self.image_list = [clean_path(i) for i in self.image_list]
         self.input_size = input_size
         self.num_workers = num_workers
