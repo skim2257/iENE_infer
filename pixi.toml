@@ -71,7 +71,7 @@ pipeline-no-dicom = { cmd = "pixi run prepare && pixi run -e nnunet larynx && pi
 pipeline-full = { cmd = "pixi run process && pixi run prepare && pixi run -e nnunet larynx && pixi run predict && pixi run average" }
 predict-only = { cmd = "pixi run predict && pixi run average" }
 
-validate = {cmd = "python src/iENE_infer/validate_data.py $IN_ORG_PATH"}
+validate = {cmd = "python src/iENE_infer/validate_data.py --root_directory $IN_ORG_PATH"}
 
 [environments]
 nnunet = { features = ["nnunet"], no-default-feature = true }
