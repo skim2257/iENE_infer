@@ -1,0 +1,12 @@
+services:
+  app:
+    image: iene-inference:latest
+    volumes:
+      - C:/Users/samkr/OneDrive/Desktop/tcia/radcure-iENE:/data/input
+      - C:/Users/samkr/OneDrive/Desktop/tcia/radcure-docker-output:/data/outputs
+    command: >
+      sh -c "pixi run process &&
+             pixi run prepare &&
+             pixi run larynx &&
+             pixi run predict &&
+             pixi run average"
