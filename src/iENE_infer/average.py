@@ -31,7 +31,7 @@ def average_floats_in_csv_files(prediction_path):
 
     # save aggregated results
     new_prediction_path = prediction_path.replace(".csv", "_AVERAGE.csv")
-    new_df[['ID', 'ENE_average', 'ENE_sd']].to_csv(new_prediction_path, index=False)
+    new_df.to_csv(new_prediction_path, index=False)
     
     print("Cleaning up intermediate files...")
     # Remove the original TTA predictions
