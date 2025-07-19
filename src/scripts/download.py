@@ -13,7 +13,7 @@ def download_one(client, patient, downloadDir, filePattern):
         Collection='RADCURE',
         PatientID=patient,
     )
-    print(serieses)
+    print(f"Found {len(serieses)} series for {patient}")
 
     for series in serieses:
         print(f"Downloading {series['SeriesInstanceUID']}")
@@ -35,10 +35,13 @@ def main():
     df = pd.read_csv(os.environ['IENE_CSV_PATH'])
     patients = df[df.split == 'test']['RADCURE_ID']
 
+    print(f"Downloading {len(patients)} patients...")
+
     client = NBIAClient(username=os.environ['TCIA_USERNAME'],
                         password=os.environ['TCIA_PASSWORD'])
-        
+    
     Parallel(n_jobs=8)(delayed(download_one)(client, patient, downloadDir, filePattern) for patient in patients)
+
     print("Finished downloading all patients")
     print("========================================")
 

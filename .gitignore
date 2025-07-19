@@ -6,6 +6,7 @@ outputs/*
 scripts/*
 *.sejin.local
 *.skim
+./src/scripts/scp.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -172,3 +173,5 @@ cython_debug/
 # pixi environments
 .pixi
 *.egg-info
+src/scripts/scp.py
+pixi.toml.clean

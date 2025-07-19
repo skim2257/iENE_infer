@@ -20,18 +20,29 @@ scikit-learn = ">=1.5.2,<2"
 python-dotenv = ">=1.0.1,<2"
 
 [activation.env]
-SAVE_DIR=
-IN_PATH=
-IN_ORG_PATH=
-OUT_PATH=
-pred_save_path=
-ckpt_path=
+SAVE_DIR="C:/Users/samkr/OneDrive/Desktop/tcia/radcure-from-h4h"
+IN_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/radcure-h4h-processed"
+IN_ORG_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/radcure-h4h-org"
+OUT_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/radcure-h4h-nnunet"
+pred_save_path="./outputs/RADCURE_h4h_predictions.csv"
+ckpt_path="./src/models"
+
+[feature.nnunet.activation.env]
+IN_ORG_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/radcure-h4h-org"
+OUT_PATH="C:/Users/samkr/OneDrive/Desktop/tcia/radcure-h4h-nnunet"
 
 [feature.download.activation.env]
-SAVE_DIR=
-TCIA_USERNAME=
-TCIA_PASSWORD=
-IENE_CSV_PATH=
+SAVE_DIR="C:/Users/samkr/OneDrive/Desktop/tcia/radcure-from-h4h"
+TCIA_USERNAME="bhaibeka"
+TCIA_PASSWORD="Soleil2uhn!"
+IENE_CSV_PATH="C:/Users/samkr/OneDrive/Desktop/code/iENE_infer_new/iENE.csv"
+
+[feature.download.dependencies]
+python = "3.12.*"
+joblib = ">=1.5.1,<2"
+
+[feature.download.pypi-dependencies]
+nbiatoolkit = ">=1.3.1, <2"
 
 [feature.nnunet]
 channels = ["conda-forge", "pytorch"]
@@ -47,7 +58,7 @@ acvl-utils = "==0.2"
 blosc2 = "==2.7.1"
 
 [feature.nnunet.tasks]
-larynx = { cmd = "nnUNetv2_predict -i $IN_ORG_PATH -o $OUT_PATH -d 001 -device cpu -f 0 -c 3d_fullres -chk checkpoint_best.pth", env = {nnUNet_raw="/app/src/nnunet/nnUNet_raw", nnUNet_results="/app/src/nnunet/nnUNet_results", nnUNet_preprocessed="/app/src/nnunet/nnUNet_preprocessed"}} 
+larynx = { cmd = "nnUNetv2_predict -i $IN_ORG_PATH -o $OUT_PATH -d 001 -device cuda -f 0 -c 3d_fullres -chk checkpoint_best.pth", env = {nnUNet_raw="./src/nnunet/nnUNet_raw", nnUNet_results="./src/nnunet/nnUNet_results", nnUNet_preprocessed="./src/nnunet/nnUNet_preprocessed"}} 
 
 [tasks]
 # Step 0: DICOM to NIfTI preprocessing (optional)
@@ -60,18 +71,19 @@ prepare = { cmd = "python src/iENE_infer/prepare.py $IN_PATH $IN_ORG_PATH"}
 # Use: pixi run -e nnunet larynx
 
 # Step 3: Run iENE prediction
-predict = { cmd = "python src/iENE_infer/predict.py --test_root $IN_ORG_PATH --test_mask $OUT_PATH --pred_save_path $OUT_PATH --num_workers 2 --batch_size 1 --arch acs --seed 1201 --input_size 256 256 128 --pretrained --resnet resnet18 --ckpt_path /app/src/models" }
+predict = { cmd = "python src/iENE_infer/predict.py --test_root $IN_ORG_PATH --test_mask $OUT_PATH --pred_save_path $OUT_PATH --num_workers 2 --batch_size 1 --arch acs --seed 1201 --input_size 256 256 128 --pretrained --resnet resnet18 --ckpt_path ./src/models" }
 
 # Step 4: Average predictions
 average = { cmd = "python src/iENE_infer/average.py --prediction_dir $OUT_PATH" }
 
 # Combined tasks for convenience
 pipeline-no-dicom = { cmd = "pixi run prepare && pixi run -e nnunet larynx && pixi run predict && pixi run average" }
-pipeline-full = { cmd = "pixi run process && pixi run prepare && pixi run -e nnunet larynx && pixi run predict && pixi run average" }
-predict-only = { cmd = "pixi run predict && pixi run average" }
+pipeline = { cmd = "pixi run process && pixi run prepare && pixi run -e nnunet larynx && pixi run predict && pixi run average" }
+inference = { cmd = "pixi run predict && pixi run average" }
 
 # Health check task
 health-check = { cmd = "python -c 'import torch; print(f\"PyTorch CPU: {torch.get_num_threads()} threads\"); print(f\"CUDA available: {torch.cuda.is_available()}\")'" }
 
 [environments]
 nnunet = { features = ["nnunet"], no-default-feature = true }
+tcia = { features = ["download"], no-default-feature = true }
