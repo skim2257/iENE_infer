@@ -47,12 +47,24 @@ def main():
             # init model
             model = rENEModel.load_from_checkpoint(hparams.ckpt_path, params=hparams)
             model.eval()
-
+            
+            # Determine if GPU is available and set accordingly
+            if hasattr(hparams, 'gpus'):
+                gpus = hparams.gpus
+            else:
+                # Default: use GPU if available, else CPU
+                from torch.cuda import is_available
+                print(is_available())
+                gpus = 1 if is_available() else 0
+            
             # Initialize a trainer
-            trainer = Trainer.from_argparse_args(hparams, 
-                                                 progress_bar_refresh_rate=2,
-                                                 checkpoint_callback=None,
-                                                 logger=None)
+            trainer = Trainer.from_argparse_args(
+                hparams,
+                progress_bar_refresh_rate=2,
+                checkpoint_callback=None,
+                logger=None,
+                gpus=gpus
+            )
 
             # Train the model ⚡
             trainer.test(model)

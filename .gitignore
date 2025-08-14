@@ -7,6 +7,7 @@ scripts/*
 *.sejin.local
 *.skim
 ./src/scripts/scp.py
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

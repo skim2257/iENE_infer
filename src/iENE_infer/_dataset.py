@@ -112,7 +112,7 @@ class ExternalDataset(Dataset):
         else:
             self.mask_directory = pathlib.Path(mask_directory).as_posix()
 
-        self.resample = Resample(spacing=(1., 1., 1.))
+        self.resample = Resample(spacing=(0., 0., 1.))
     
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, int]:
         """Get an input-target pair from the dataset.
